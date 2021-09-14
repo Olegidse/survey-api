@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="init category" author="t">
+        <loadData file="liquibase/init_data/1-test-category.csv" separator=";" tableName="category">
+            <column name="category_id" type="string"/>
+            <column name="name" type="string" />
+            <column name="value" type="string"/>
+            <column name="icon" type="string"/>
+            <column name="colour" type="string"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="init currency" author="t">
+        <loadData file="liquibase/init_data/2-test-currency.csv" separator=";" tableName="currency">
+            <column name="currency_id" type="string"/>
+            <column name="name" type="string" />
+            <column name="title" type="string"/>
+            <column name="course" type="string"/>
+            <column name="is_up" type="string"/>
+        </loadData>
+    </changeSet>
+
+</databaseChangeLog>

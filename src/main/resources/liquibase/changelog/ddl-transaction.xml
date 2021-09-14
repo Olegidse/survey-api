@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="create-person" author="t">
+        <createTable tableName="person">
+            <column name="person_id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+        <createSequence sequenceName="person_seq" startValue="100" incrementBy="1" />
+    </changeSet>
+
+    <changeSet id="create-survey" author="t">
+        <createTable tableName="survey">
+            <column name="survey_id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)" />
+            <column name="description" type="varchar(255)"/>
+            <column name="start_date" type="bigint"/>
+            <column name="end_date" type="bigint"/>
+
+        </createTable>
+        <createSequence sequenceName="survey_seq" startValue="100" incrementBy="1" />
+    </changeSet>
+
+    <changeSet id="create-question" author="t">
+        <createTable tableName="question">
+            <column name="question_id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="text" type="varchar(255)" />
+            <column name="type" type="varchar(255)" />
+            <column name="survey_id" type="bigint" >
+                <constraints foreignKeyName="question_survey_fk"
+                             referencedTableName="survey"
+                             referencedColumnNames="survey_id"/>
+            </column>
+
+        </createTable>
+        <createSequence sequenceName="question_seq" startValue="100" incrementBy="1" />
+    </changeSet>
+
+
+    <changeSet id="create-answer" author="t">
+        <createTable tableName="answer">
+            <column name="answer_id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="answer" type="varchar(255)" />
+            <column name="person_id" type="bigint">
+                <constraints foreignKeyName="answer_person_fk"
+                         referencedTableName="person"
+                         referencedColumnNames="person_id"/>
+            </column>
+            <column name="question_id" type="bigint">
+                <constraints foreignKeyName="answer_question_fk"
+                             referencedTableName="question"
+                             referencedColumnNames="question_id"/>
+            </column>
+        </createTable>
+        <createSequence sequenceName="answer_seq" startValue="100" incrementBy="1" />
+    </changeSet>
+
+
+
+</databaseChangeLog>
