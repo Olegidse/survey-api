@@ -15,8 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: gradle:7.2.0-jdk11
-
+    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a single command using the runners shell
       - name: build
         run: gradle build
 
@@ -39,4 +43,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
