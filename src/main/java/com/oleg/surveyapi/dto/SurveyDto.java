@@ -18,10 +18,10 @@ public class SurveyDto {
     @Schema(description = "Описание опроса")
     private String description;
 
-    @Schema(description = "Дата начала опроса")
+    @Schema(description = "Дата начала опроса, timestamp в миллисекундах")
     private Long startDate;
 
-    @Schema(description = "Дата окончания опроса")
+    @Schema(description = "Дата окончания опроса, timestamp в миллисекундах")
     private Long endDate;
 
     @Schema(description = "Id опроса")

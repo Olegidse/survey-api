@@ -1,16 +1,18 @@
 version: '3.1'
 services:
   API:
-    image: 'survey-api:latest'
+    image: 'olegidse/survey-api:latest'
     ports:
       - "8080:8080"
+    depends_on:
+      - db
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=password
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
 
-  PostgreSQL:
+  db:
     image: postgres
     container_name: db
     ports:

@@ -22,6 +22,9 @@ public class PersonEntity {
     @Column(name = "person_id")
     private Long personId;
 
+    @Column(name = "external_id", unique = true)
+    private Long externalId;
+
     @JoinColumn(name = "person_id")
     @OneToMany(cascade = CascadeType.ALL)
     private List<AnswerEntity> answers;
