@@ -23,7 +23,7 @@
 Что необходимо для запуска: Docker, свободные порты 8080 и 5432
 
 Инструкция по запуску:
-1. Сохранить docker-compose файл на той машине, на которой собираетесь запустить api https://github.com/Olegidse/survey-api/blob/ac3af6c9982b59a1570e5d74c8f85352ad16523b/docker-compose.yml
+1. Сохранить docker-compose файл на той машине, на которой собираетесь запустить api https://github.com/Olegidse/survey-api/blob/main/docker-compose.yml
 2. Перейти в директорию, где лежит yml файл
 3. В командной строке ввести "docker compose up"
 
