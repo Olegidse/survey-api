@@ -9,6 +9,7 @@
             <column name="person_id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
+            <column name="external_id" type="bigint"/>
         </createTable>
         <createSequence sequenceName="person_seq" startValue="100" incrementBy="1" />
     </changeSet>

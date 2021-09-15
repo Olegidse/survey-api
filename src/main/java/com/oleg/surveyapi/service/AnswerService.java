@@ -11,13 +11,11 @@ import com.oleg.surveyapi.dto.AnswerDetalizationDto;
 import com.oleg.surveyapi.dto.AnswerWithQuestionDto;
 import com.oleg.surveyapi.dto.MultipleAnswersDto;
 import com.oleg.surveyapi.dto.MultipleAnswersWithQuestionDto;
+import com.oleg.surveyapi.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -28,50 +26,67 @@ public class AnswerService {
     private final QuestionRepository questionRepository;
 
     public void saveAnswers(MultipleAnswersDto multipleAnswersDto) {
-        PersonEntity person = personRepository.getById(multipleAnswersDto.getPersonId());
+        Optional<PersonEntity> optionalPerson = personRepository.findPersonEntitiesByExternalId(multipleAnswersDto.getPersonId());
+        PersonEntity person = new PersonEntity();
+        if (optionalPerson.isPresent()) { person = optionalPerson.get();}
+        else {
+            person.setExternalId(multipleAnswersDto.getPersonId());
+            person = personRepository.save(person);
+        }
+
+
+        PersonEntity finalPerson = person;
         multipleAnswersDto.getAnswers().forEach(answerDto -> {
-            AnswerEntity answer = new AnswerEntity();
-            answer.setAnswer(answerDto.getAnswer());
-            answer.setPerson(person);
-            answer.setQuestion(questionRepository.getById(answerDto.getQuestionId()));
-            answerRepository.save(answer);
+            Optional<QuestionEntity> optionalQuestion = questionRepository.findById(answerDto.getQuestionId());
+            if (optionalQuestion.isEmpty())
+                throw new NotFoundException(String.format("Question with id = %d does not exist", answerDto.getQuestionId()));
+            else {
+                AnswerEntity answer = new AnswerEntity();
+                answer.setAnswer(answerDto.getAnswer());
+                answer.setPerson(finalPerson);
+                answer.setQuestion(optionalQuestion.get());
+                answerRepository.save(answer);
+            }
         }
         );
     }
 
 
     public AnswerDetalizationDto getAllAnswers(Long id) {
-        PersonEntity person = personRepository.getById(id);
-        List<AnswerEntity> answerList = person.getAnswers();
-        Map<SurveyEntity, List<AnswerWithQuestionDto>> surveyMap = new HashMap<>();
-        answerList.forEach(answerEntity -> {
-            QuestionEntity question = answerEntity.getQuestion();
-            SurveyEntity survey = question.getSurvey();
-            AnswerWithQuestionDto answerWithQuestionDto = new AnswerWithQuestionDto();
-            answerWithQuestionDto.setAnswer(answerEntity.getAnswer());
-            answerWithQuestionDto.setText(question.getText());
-            answerWithQuestionDto.setType(question.getType());
-            if (!surveyMap.containsKey(survey)) {
-                surveyMap.put(survey, new ArrayList<>());
-            }
-            List<AnswerWithQuestionDto> answerWithQuestionDtoList = surveyMap.get(survey);
-            answerWithQuestionDtoList.add(answerWithQuestionDto);
-            surveyMap.put(survey, answerWithQuestionDtoList);
-        });
+        Optional<PersonEntity> optionalPerson = personRepository.findPersonEntitiesByExternalId(id);
+        if (optionalPerson.isPresent()) {
+            PersonEntity person = optionalPerson.get();
+            List<AnswerEntity> answerList = person.getAnswers();
+            Map<SurveyEntity, List<AnswerWithQuestionDto>> surveyMap = new HashMap<>();
+            answerList.forEach(answerEntity -> {
+                QuestionEntity question = answerEntity.getQuestion();
+                SurveyEntity survey = question.getSurvey();
+                AnswerWithQuestionDto answerWithQuestionDto = new AnswerWithQuestionDto();
+                answerWithQuestionDto.setAnswer(answerEntity.getAnswer());
+                answerWithQuestionDto.setText(question.getText());
+                answerWithQuestionDto.setType(question.getType());
+                if (!surveyMap.containsKey(survey)) {
+                    surveyMap.put(survey, new ArrayList<>());
+                }
+                List<AnswerWithQuestionDto> answerWithQuestionDtoList = surveyMap.get(survey);
+                answerWithQuestionDtoList.add(answerWithQuestionDto);
+                surveyMap.put(survey, answerWithQuestionDtoList);
+            });
 
-        List<MultipleAnswersWithQuestionDto> multipleAnswersWithQuestionDtoList = new ArrayList<>();
-        surveyMap.forEach((key, value) -> {
-            MultipleAnswersWithQuestionDto multipleAnswersWithQuestionDto = new MultipleAnswersWithQuestionDto();
+            List<MultipleAnswersWithQuestionDto> multipleAnswersWithQuestionDtoList = new ArrayList<>();
+            surveyMap.forEach((key, value) -> {
+                MultipleAnswersWithQuestionDto multipleAnswersWithQuestionDto = new MultipleAnswersWithQuestionDto();
 
-            multipleAnswersWithQuestionDto.setAnswers(value);
-            multipleAnswersWithQuestionDto.setSurveyName(key.getName());
+                multipleAnswersWithQuestionDto.setAnswers(value);
+                multipleAnswersWithQuestionDto.setSurveyName(key.getName());
 
-            multipleAnswersWithQuestionDtoList.add(multipleAnswersWithQuestionDto);
-        });
+                multipleAnswersWithQuestionDtoList.add(multipleAnswersWithQuestionDto);
+            });
 
 
-        AnswerDetalizationDto answerDetalizationDto = new AnswerDetalizationDto();
-        answerDetalizationDto.setAnswers(multipleAnswersWithQuestionDtoList);
-        return answerDetalizationDto;
+            AnswerDetalizationDto answerDetalizationDto = new AnswerDetalizationDto();
+            answerDetalizationDto.setAnswers(multipleAnswersWithQuestionDtoList);
+            return answerDetalizationDto;
+        } else {throw new NotFoundException("User with such id does not exist");}
     }
 }
